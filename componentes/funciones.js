@@ -1,4 +1,7 @@
+const { rejects } = require('assert');
+const { resolve } = require('path');
 const readline = require('readline');
+
 
 const listadeTareas =[];
 
@@ -6,6 +9,8 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
+
+
 
 const menu = () => {
     console.log ("Bienvenido a tu lista de Tareas\n");
@@ -25,6 +30,7 @@ const menu = () => {
             case "2": 
             console.log ("Seleccionate Lista Tareas");
             console.log(listadeTareas);
+            menu();
             break;
             case "3": 
             console.log ("Seleccionate Tareas Completas");
@@ -45,54 +51,68 @@ const menu = () => {
 
 
 function agregarTareas () {
-    
-    rl.question ("id: ",(id)=>{
-        rl.question ("Descripcion: ", (descripcion) =>{ 
-            const tarea = {
-                 id,
-                descripcion,
-                completado:false
-            }
-            listadeTareas.push(tarea);
-            console.log(listadeTareas);
-            menu();
+    return new Promise ((resolve,reject) => {
+        rl.question ("id: ",(id)=>{
+            rl.question ("Descripcion: ", (descripcion) =>{ 
+                const tarea = {
+                     id,
+                    descripcion,
+                    completado:false
+                }
+                listadeTareas.push(tarea);
+                console.log(listadeTareas);
+                menu();
+                resolve(tarea);
+            });
         });
     });
     
    }
 
-   const completado = () => {
-    rl.question("Cual es el id de la tarea completada: ", (id) => {
-        for (i=0; i < listadeTareas.length; i++) {
-            if (listadeTareas[i].id === id) {
-                listadeTareas[i].completado = true;
-                console.log(listadeTareas);
-                
+ 
+
+    const completado = () => {
+    return new Promise ((resolve,reject)=> {
+     rl.question("Cual es el id de la tarea completada: ", (id) => {
+            for (i=0; i < listadeTareas.length; i++) {
+                if (listadeTareas[i].id === id) {
+                    listadeTareas[i].completado = true;
+                    console.log(listadeTareas);
+                    resolve();
+
+                }
+            else{
+                reject ("La tarea no se econtro por lo tanto no se pudo marcar como completa")
             }
-            else {
-                console.log (listadeTareas);
             }
-        }
-        menu();
+            menu();
+            
+        });
     });
    }
 
    const borrarTarea = () => {
+   return new Promise ((resolve,reject) =>{ 
     rl.question ("Cual es el id de la tareas para borrar: ", (id) => {
         for (i=0; i < listadeTareas.length; i++) {
             if (listadeTareas[i].id === id) {
                 listadeTareas.splice(i,1);
-                console.log(listadeTareas);
-                
+                console.log(listadeTareas); 
+                resolve();
+
             }
             else {
-                console.log (listadeTareas);
+                reject ("No se encontró la tarea")
             }
         }
         menu();
+        
     });
-   }
+   });
+ }
+ 
+
 
    module.exports = {
-    menu
+    menu, agregarTareas, completado, borrarTarea
    }
